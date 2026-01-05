@@ -30,3 +30,9 @@ scraping:
   fields:
     col1: "td:nth-child(1)"
     col2: "td:nth-child(2)"
+
+google_sheet:
+  kpis_sheet_name: "シート1" # Default sheet name
+
+chatwork:
+  message_template: "A8.net scraped: {count} items found."

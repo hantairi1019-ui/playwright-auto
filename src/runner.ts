@@ -141,5 +141,96 @@ export class Runner {
                 console.error('Failed to save Excel file:', error.message);
             }
         }
+
+        // Cloud Integrations
+        if (this.config.google_sheet || this.config.chatwork) {
+            await this.processCloudIntegrations(allData);
+        }
+    }
+
+    private async processCloudIntegrations(data: any[]) {
+        require('dotenv').config();
+
+        // 1. Google Sheets
+        if (this.config.google_sheet) {
+            try {
+                console.log('Sending data to Google Sheets...');
+                const { GoogleSpreadsheet } = require('google-spreadsheet');
+                const { JWT } = require('google-auth-library');
+
+                const serviceAccountAuth = new JWT({
+                    email: require('../' + process.env.GOOGLE_SERVICE_ACCOUNT_JSON).client_email,
+                    key: require('../' + process.env.GOOGLE_SERVICE_ACCOUNT_JSON).private_key,
+                    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+                });
+
+                const docId = this.config.google_sheet.spread_sheet_id || process.env.GOOGLE_SHEET_ID;
+                if (!docId) throw new Error('Google Sheet ID not configured');
+
+                const doc = new GoogleSpreadsheet(docId, serviceAccountAuth);
+                await doc.loadInfo();
+
+                // Determine sheet to write to
+                let sheet;
+                if (this.config.google_sheet.kpis_sheet_name) {
+                    sheet = doc.sheetsByTitle[this.config.google_sheet.kpis_sheet_name];
+                    if (!sheet) {
+                        // If not found, try to create it or default to first
+                        console.warn(`Sheet '${this.config.google_sheet.kpis_sheet_name}' not found. Using first sheet.`);
+                        sheet = doc.sheetsByIndex[0];
+                    }
+                } else {
+                    sheet = doc.sheetsByIndex[0];
+                }
+
+                if (data.length > 0) {
+                    let headersLoaded = false;
+                    try {
+                        await sheet.loadHeaderRow();
+                        headersLoaded = true;
+                    } catch (e) {
+                        // Likely no header row exists (empty sheet)
+                        console.log('Could not load header row (sheet might be empty). Initializing headers...');
+                    }
+
+                    if (!headersLoaded || sheet.headerValues.length === 0) {
+                        const headers = Object.keys(data[0]);
+                        await sheet.setHeaderRow(headers);
+                    }
+
+                    await sheet.addRows(data);
+                    console.log('Successfully wrote to Google Sheets.');
+                }
+            } catch (e: any) {
+                console.error('Google Sheets Error:', e.message);
+            }
+        }
+
+        // 2. Chatwork
+        if (this.config.chatwork) {
+            try {
+                console.log('Sending Chatwork notification...');
+                const axios = require('axios');
+                const token = process.env.CHATWORK_API_TOKEN;
+                const roomId = this.config.chatwork.room_id || process.env.CHATWORK_ROOM_ID;
+
+                if (!token || !roomId) throw new Error('Chatwork credentials missing');
+
+                const count = data.length;
+                let body = this.config.chatwork.message_template || `Scraping Completed.\nTotal Items: ${count}`;
+                // Simple template substitution
+                body = body.replace('{count}', count.toString());
+
+                await axios.post(
+                    `https://api.chatwork.com/v2/rooms/${roomId}/messages`,
+                    new URLSearchParams({ body: body }),
+                    { headers: { 'X-ChatWorkToken': token } }
+                );
+                console.log('Chatwork notification sent.');
+
+            } catch (e: any) {
+                console.error('Chatwork Error:', e.message);
+            }
+        }
     }
 }

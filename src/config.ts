@@ -29,10 +29,22 @@ export interface ScrapingConfig {
     output_file?: string; // Optional path to save scraped data (e.g., 'output.xlsx')
 }
 
+export interface GoogleSheetConfig {
+    spread_sheet_id?: string; // Can be overridden in config, otherwise use env
+    kpis_sheet_name?: string; // Sheet name to append data to
+}
+
+export interface ChatworkConfig {
+    room_id?: string; // Can be overridden
+    message_template?: string; // Template for notification
+}
+
 export interface AutomationConfig {
     target_url: string;
     steps: StepConfig[];
     scraping?: ScrapingConfig;
+    google_sheet?: GoogleSheetConfig;
+    chatwork?: ChatworkConfig;
 }
 
 export function loadConfig(filePath: string): AutomationConfig {
