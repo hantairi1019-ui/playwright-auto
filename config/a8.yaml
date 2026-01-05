@@ -1,0 +1,38 @@
+target_url: "https://www.a8.net/"
+steps:
+   - type: text_box
+     selector: "#headArea #asLoginId"
+     value: "hotvshan"
+   
+   - type: text_box
+     selector: "#headArea [name='passwd']"
+     value: "ZAQ!2wsx"
+   
+   - type: button
+     selector: "#headArea [name='login_as_btn']"
+     action: click
+
+   - type: link
+     selector:
+       mode: "xpath"
+       value: "//a[text()='レポート']"
+     action: click
+
+   - type: link
+     selector:
+       mode: "xpath"
+       value: "//a[text()='成果報酬']"
+     action: click
+
+scraping:
+  list_selector: ".reportTable1 tr"
+  output_file: "a8_result.xlsx"
+  fields:
+    col1: "td:nth-child(1)"
+    col2: "td:nth-child(2)"
+
+google_sheet:
+  kpis_sheet_name: "シート1" # Default sheet name
+
+chatwork:
+  message_template: "A8.net scraped: {count} items found."
