@@ -1,4 +1,12 @@
+
 node_modules/
 .DS_Store
 *.log
 debug_*.png
+.env
+output/
+*.xlsx
+google-service-account.json
+test-results/
+playwright-report/
+blob-report/

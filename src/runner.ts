@@ -12,7 +12,8 @@ export class Runner {
     }
 
     async run() {
-        this.browser = await chromium.launch({ headless: false }); // headful for visibility
+        const headless = process.env.HEADLESS === 'true' || process.env.HEADLESS === '1';
+        this.browser = await chromium.launch({ headless }); // headful by default, unless HEADLESS=true
         const context = await this.browser.newContext();
         this.page = await context.newPage();
 
