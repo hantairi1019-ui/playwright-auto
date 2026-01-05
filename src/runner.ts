@@ -161,7 +161,7 @@ export class Runner {
 
                 const serviceAccountAuth = new JWT({
                     email: require('../' + process.env.GOOGLE_SERVICE_ACCOUNT_JSON).client_email,
-                    key: require('../' + process.env.GOOGLE_SERVICE_ACCOUNT_JSON).private_key,
+                    key: require('../' + process.env.GOOGLE_SERVICE_ACCOUNT_JSON).private_key.replace(/\\n/g, '\n'),
                     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
                 });
 
