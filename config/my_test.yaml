@@ -1,0 +1,15 @@
+target_url: "https://www.a8.net/"
+steps:
+  # Example step: Wait is implicit or can be dynamic
+   - type: text_box
+     selector: "#asLoginId"
+     value: "hotvshan"
+   - type: text_box
+     mode:"name"
+     selector: "passwd"
+     value: "ZAQ!2wsx"
+   - type: button
+     mode:"name"
+     selector: "login_as_btn"
+     action: click
+

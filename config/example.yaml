@@ -1,0 +1,14 @@
+target_url: "https://example.com"
+steps:
+  # Example step: Wait is implicit or can be dynamic
+  # - type: text_box
+  #   selector: "input[name='q']"
+  #   value: "Playwright"
+  # - type: button
+  #   selector: "button[type='submit']"
+  #   action: click
+scraping:
+  list_selector: "div" # Just a placeholder
+  fields:
+    title: "h1"
+    description: "p"
